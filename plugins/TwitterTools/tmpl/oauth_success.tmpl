@@ -1,0 +1,19 @@
+<mt:include name="include/header.tmpl" page_title="<__trans phrase="Twitter Authorization">">
+
+
+<mt:if name="twitter_screen_name">
+
+	<p>Twitter Authorization successful for Twitter user <strong><a href="http://twitter.com/<mt:var name="twitter_screen_name">" target="_blank"><mt:var name="twitter_screen_name"></a></strong> (<mt:var name="twitter_username">) for <mt:var name="blog_name">.</p>
+	    <div class="actions-bar">
+	<div class="actions-bar-inner pkg actions">
+	    <a href="<mt:var name="return_url">" target="_top" class="primary-button"><__trans phrase="Continue"></a>
+	</div>
+	</div>
+
+<mt:else>
+
+error goes here
+
+</mt:if>
+
+<mt:include name="include/footer.tmpl">

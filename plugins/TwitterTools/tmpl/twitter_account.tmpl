@@ -1,0 +1,30 @@
+<mt:setvar name="edit_author" value="1">
+<mt:setvar name="twitter_account" value="1">
+<mt:setvarblock name="page_title"><__trans phrase="Twitter Account for"> <mt:var name="username"></mt:setvarblock>
+
+<mt:setvarblock name="system_msg">
+    <mt:if name="authed">
+        <mtapp:statusmsg
+            id="authed"
+            class="info">
+            	<p>Twitter user <strong><a href="http://twitter.com/<mt:var name="twitter_username">" target="_blank"><mt:var name="twitter_username"></a></strong> has been associated with this user. New entries will be posted to this Twitter account.  To use a different Twitter account or to re-authorize, use the button below.</p>
+        </mtapp:statusmsg>
+    </mt:if>
+</mt:setvarblock>
+
+<mt:setvarblock name="content_nav">
+    <mt:include name="include/users_content_nav.tmpl">
+</mt:setvarblock>
+
+<mt:include name="include/header.tmpl">
+
+<mtapp:setting
+    id="twitter_aoauth"
+    label="<__trans phrase="Twitter Authorization">"
+    hint="Sign in with Twitter to associate your Twitter account with your MT user account."
+	class="actions-bar"
+    show_hint="1">
+        <a href="<mt:CGIPath><mt:AdminScript>?__mode=twitter_account&amp;start_oauth=1&amp;id=<mt:var name="id">&amp;return_args=__mode%3Dtwitter_account%26id%3D<mt:var name="id">"><img src="<mt:StaticWebPath>plugins/TwitterTools/images/signin_with_twitter.png" /></a>
+</mtapp:setting>
+
+<mt:include name="include/footer.tmpl">

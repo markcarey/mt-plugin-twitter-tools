@@ -1,0 +1,129 @@
+# v 1.0  - initial release
+# v 1.01 - added Yourls support for URL shortening which requires URLShortenerAPIBaseURL config directive
+# v 1.02 - now strips any index.html/php from the end of full URLs before shortening
+# v 1.03 - callback priorities now 10 and now using build_file callback to trigger tweets (fixes issues with category in URLs)
+# v 1.1 - New pro feature: published entries that were not auto-tweet when first published will now display a checkbox to tweet
+# v 1.2 - Support for new Twitter API -- solves 410 Gone errors
+name: Twitter Tools Pro
+id: TwitterTools
+key: TwitterTools
+author_link: http://mt-hacks.com/
+author_name: MT Hacks
+description: Auto-tweets entries and more Twitter integration features. Pro version.
+schema_version: 5
+version: 1.2
+plugin_link: http://mt-hacks.com/twittertools.html
+settings:
+    twitter_consumer_key:
+        Default: haMX7XXKPEyYqd9iKj4pbA
+        Scope: system
+    twitter_consumer_secret:
+        Default: OejbNozNkjk2EFT5Kzf3n7gLJrXlQUxKY7AhdAOk5g
+        Scope: system
+    twitter_username:
+        Scope: blog
+    twitter_access_token:
+        Scope: blog
+    twitter_access_secret:
+        Scope: blog
+    auto_tweet:
+        Scope: blog
+        Default: 0
+    entry_hashtags:
+        Scope: blog
+        Default: 0
+    default_hashtags:
+        Scope: blog
+    filter_cats:
+        Scope: blog
+    filter_tags:
+        Scope: blog
+    tweet_field:
+        Scope: blog
+        Default: title
+    tweet_prefix:
+        Scope: blog
+    never_shorten:
+        Scope: blog
+    shortner_service:
+        Scope: blog
+    shortner_username:
+        Scope: blog
+    shortner_apikey:
+        Scope: blog
+system_config_template: system_config_template.tmpl
+blog_config_template:
+    code: $TwitterTools::TwitterTools::App::CMS::blog_config_template
+config_settings:
+    TwitterToolsOAuthConsumerKey:
+        default: haMX7XXKPEyYqd9iKj4pbA
+    TwitterToolsOAuthConsumerSecret:
+        default: OejbNozNkjk2EFT5Kzf3n7gLJrXlQUxKY7AhdAOk5g
+applications:
+    cms:
+        methods:
+            twittertools:       $TwitterTools::TwitterTools::App::CMS::twitter_oauth
+            twitter_account:     $TwitterTools::TwitterTools::Pro::App::CMS::twitter_account
+    comments:
+        methods:
+            twittertools_share:  $TwitterTools::TwitterTools::Pro::App::Comments::twitter_share
+callbacks:
+    MT::Entry::pre_save: 
+        handler: $TwitterTools::TwitterTools::Callbacks::entry_pre_save
+        priority: 10
+    MT::Entry::post_save:
+        handler: $TwitterTools::TwitterTools::Callbacks::entry_post_save
+        priority: 10
+    build_page: $TwitterTools::TwitterTools::Callbacks::build_page
+    build_file: $TwitterTools::TwitterTools::Callbacks::build_file
+    MT::App::CMS::template_param.edit_author: $TwitterTools::TwitterTools::Pro::Callbacks::users_content_nav
+    MT::App::CMS::template_param.twitter_account: $TwitterTools::TwitterTools::Pro::Callbacks::users_content_nav
+    MT::App::CMS::template_param.edit_entry: 
+        handler: $TwitterTools::TwitterTools::Pro::Callbacks::edit_entry
+        priority: 10
+    MT::App::CMS::cms_pre_save.entry: $TwitterTools::TwitterTools::Pro::Callbacks::cms_pre_save_entry
+object_types:
+    entry:
+        twitter_status_id: string meta indexed
+        twitter_short_url: string meta
+        uuid: string(50)
+        source: string(50)
+    author:
+        twitter_username: string meta indexed
+        twitter_access_token: string meta
+        twitter_access_secret: string meta
+tags:
+    function:
+        EntryTwitterShortURL:   $TwitterTools::TwitterTools::Tags::twitter_short_url
+        TweetSource:            $TwitterTools::TwitterTools::Tags::_hdlr_tweet_source
+        TweetFromUser:          $TwitterTools::TwitterTools::Tags::_hdlr_tweet_from_user
+        TweetAuthor:            $TwitterTools::TwitterTools::Tags::_hdlr_tweet_from_user
+        TweetProfileImageURL:   $TwitterTools::TwitterTools::Tags::_hdlr_tweet_profile_image_url
+        TweetStatus:            $TwitterTools::TwitterTools::Tags::_hdlr_tweet_status
+        TweetText:              $TwitterTools::TwitterTools::Tags::_hdlr_tweet_status
+        TweetBody:              $TwitterTools::TwitterTools::Tags::_hdlr_tweet_status
+        TweetDate:              $TwitterTools::TwitterTools::Tags::_hdlr_tweet_date
+        TweetToUser:            $TwitterTools::TwitterTools::Tags::_hdlr_tweet_to_user
+        TweetStatusID:          $TwitterTools::TwitterTools::Tags::_hdlr_tweet_status_id
+    block:
+        Tweets:                 $TwitterTools::TwitterTools::Tags::_hdlr_tweets
+    modifier:
+        autolink_urls:          $TwitterTools::TwitterTools::Tags::autolink_urls
+        autolink_hashtags:      $TwitterTools::TwitterTools::Tags::autolink_hashtags
+init_app: >
+    sub {
+        if (MT->version_number < 4.3) {
+            require TwitterTools::Tags;
+            my $c = MT->component('TwitterTools');
+            my $r = $c->registry("tags","modifier");
+            $r->{autolink_urls} = \&TwitterTools::Tags::autolink_urls;
+            $r->{autolink_hashtags} = \&TwitterTools::Tags::autolink_hashtags;
+        }
+    }
+task_workers:
+    twittertools_import:
+        label: Imports Tweets into MT
+        class: TwitterTools::Pro::Worker::Import
+    twittertools_subscribe_search:
+        label: Gets tweets from search API to be imported by Import worker
+        class: TwitterTools::Pro::Worker::SubscribeSearch
