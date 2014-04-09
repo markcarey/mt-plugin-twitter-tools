@@ -60,8 +60,11 @@ sub build_page {
     
             my $ctx = $params{Context};
             my $img_path = $ctx->var('lead_image_path') if $ctx;
+            my $skip_it = $ctx->var('no_tweet') if $ctx;
 
-            _tweet_entry($entry, $img_path);
+            unless ($skip_it) {
+                _tweet_entry($entry, $img_path);
+            }
         }
     }
 }
@@ -81,8 +84,11 @@ sub build_file {
     
     my $ctx = $params{Context};
     my $img_path = $ctx->var('lead_image_path') if $ctx;
-    
-    _tweet_entry($entry, $img_path);
+    my $skip_it = $ctx->var('no_tweet') if $ctx;
+
+    unless ($skip_it) {
+        _tweet_entry($entry, $img_path);
+    }
 }
 
 sub entry_post_save {

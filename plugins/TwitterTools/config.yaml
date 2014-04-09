@@ -4,6 +4,7 @@
 # v 1.03 - callback priorities now 10 and now using build_file callback to trigger tweets (fixes issues with category in URLs)
 # v 1.1 - New pro feature: published entries that were not auto-tweet when first published will now display a checkbox to tweet
 # v 1.2 - Support for new Twitter API -- solves 410 Gone errors
+# v 1.2.1 - Support for new no_tweet template var to suppress tweet
 name: Twitter Tools Pro
 id: TwitterTools
 key: TwitterTools
@@ -11,7 +12,7 @@ author_link: http://mt-hacks.com/
 author_name: MT Hacks
 description: Auto-tweets entries and more Twitter integration features. Pro version.
 schema_version: 5
-version: 1.2
+version: 1.2.1
 plugin_link: http://mt-hacks.com/twittertools.html
 settings:
     twitter_consumer_key:
